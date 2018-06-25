@@ -1,0 +1,59 @@
+---
+# Need to use pip since the CentOS provided package is too old for Ansible.
+- name: Ensure the pexpect Python package is installed
+  local_action:
+    module: pip
+    name: pexpect
+    state: present
+  become: true
+
+- name: Ensure global switch configuration is applied
+  local_action:
+    module: expect
+    command: "ssh {{ ansible_ssh_common_args | default }} {{ mellanox_switch_provider.username }}@{{ mellanox_switch_provider.host }}"
+    responses: >-
+      {{ mellanox_auth_responses |
+         combine(enable_responses) |
+         combine(main_responses) |
+         combine(config_responses) }}
+  register: result
+  failed_when: >-
+    result.get('rc') != 0 or
+    '% Unrecognized command' in result.stdout_lines or
+    result.stdout_lines[-1] != 'Connection to ' ~ mellanox_switch_provider.host ~ ' closed.'
+  vars:
+    enable_responses: "{{ {mellanox_enable_prompt: ['enable', 'exit']} }}"
+    main_responses: "{{ {mellanox_main_prompt: ['configure terminal', 'exit']} }}"
+    config_responses: "{{ {mellanox_config_prompt: mellanox_switch_config + ['exit']} }}"
+
+- name: Ensure switch interface configuration is applied
+  local_action:
+    module: expect
+    command: "ssh {{ ansible_ssh_common_args | default }} {{ mellanox_switch_provider.username }}@{{ mellanox_switch_provider.host }}"
+    responses: >-
+      {{ mellanox_auth_responses |
+         combine(enable_responses) |
+         combine(main_responses) |
+         combine(config_responses) |
+         combine(interface_responses) }}
+  register: result
+  failed_when: >-
+    result.get('rc') != 0 or
+    '% Unrecognized command' in result.stdout_lines or
+    result.stdout_lines[-1] != 'Connection to ' ~ mellanox_switch_provider.host ~ ' closed.'
+  with_dict: "{{ mellanox_switch_interface_config }}"
+  vars:
+    enable_responses: "{{ {mellanox_enable_prompt: ['enable', 'exit']} }}"
+    main_responses: "{{ {mellanox_main_prompt: ['configure terminal', 'exit']} }}"
+    config_responses: "{{ {mellanox_config_prompt: ['interface ' ~ item.key, 'exit']} }}"
+    # Long config lines seem to confuse expect, so we add two exits.
+    interface_responses: >-
+      {{ {mellanox_interface_prompt:
+          (['description ' ~ item.value.description] if 'description' in item.value else []) +
+          item.value.config | default([]) +
+          ['exit', 'exit']} }}
+  loop_control:
+    label:
+      interface: "{{ item.key }}"
+      description:  "{{ item.value.description | default('<none>') }}"
+      config: "{{ item.value.config | default([]) }}"
