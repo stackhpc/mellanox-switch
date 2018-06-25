@@ -1,0 +1,8 @@
+---
+mellanox_enable_prompt: "{{ inventory_hostname }} \\[.*\\] > "
+mellanox_main_prompt: "{{ inventory_hostname }} \\[.*\\] # "
+mellanox_config_prompt: "{{ inventory_hostname }} \\[.*\\] \\(config( vlan [0-9\\,\\-]+)?\\) # "
+mellanox_interface_prompt: "{{ inventory_hostname }} \\[.*\\] \\(config interface .*\\) # "
+
+mellanox_auth_responses:
+  "Password:": "{{ mellanox_switch_provider.auth_pass }}"
