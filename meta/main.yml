@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: mellanox-switch
   author: Mark Goddard
   description: >
     Role to configure Mellanox switches runnning MLNX-OS
