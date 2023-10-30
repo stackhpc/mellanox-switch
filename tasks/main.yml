@@ -53,7 +53,4 @@
           item.value.config | default([]) +
           ['exit', 'exit']} }}
   loop_control:
-    label:
-      interface: "{{ item.key }}"
-      description:  "{{ item.value.description | default('<none>') }}"
-      config: "{{ item.value.config | default([]) }}"
+    label: "{interface: '{{ item.key }}', description: '{{ item.value.description | default('<none>') }}', config: '{{ item.value.config | default([]) }}'}"
