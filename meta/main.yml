@@ -1,18 +1,19 @@
 ---
 galaxy_info:
-  #role_name: mellanox_switch
+  role_name: mellanox_switch
+  namespace: stackhpc
   author: Mark Goddard
   description: >
     Role to configure Mellanox switches runnning MLNX-OS
   company: StackHPC Ltd
   license: Apache2
-  min_ansible_version: 2.0
+  min_ansible_version: "2.0"
   platforms:
     - name: EL
       versions:
-        - 7
+        - all
   galaxy_tags:
     - networking
     - mellanox
     - switch
-    - MLNX-OS
+    - mlnxos
