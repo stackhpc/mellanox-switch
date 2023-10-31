@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  role_name: mellanox_switch
-  namespace: stackhpc
+# role_name: mellanox_switch
+# namespace: stackhpc
   author: Mark Goddard
   description: >
     Role to configure Mellanox switches runnning MLNX-OS
