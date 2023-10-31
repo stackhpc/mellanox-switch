@@ -1,15 +1,15 @@
 ---
 # Need to use pip since the CentOS provided package is too old for Ansible.
 - name: Ensure the pexpect Python package is installed
-  local_action:
-    module: pip
+  delegate_to: localhost
+  ansible.builtin.pip:
     name: pexpect
     state: present
   become: true
 
 - name: Ensure global switch configuration is applied
-  local_action:
-    module: expect
+  delegate_to: localhost
+  ansible.builtin.expect:
     command: "ssh {{ ansible_ssh_common_args | default }} {{ mellanox_switch_provider.username }}@{{ mellanox_switch_provider.host }}"
     responses: >-
       {{ mellanox_auth_responses |
@@ -27,8 +27,8 @@
     config_responses: "{{ {mellanox_config_prompt: mellanox_switch_config + ['exit']} }}"
 
 - name: Ensure switch interface configuration is applied
-  local_action:
-    module: expect
+  delegate_to: localhost
+  ansible.builtin.expect:
     command: "ssh {{ ansible_ssh_common_args | default }} {{ mellanox_switch_provider.username }}@{{ mellanox_switch_provider.host }}"
     responses: >-
       {{ mellanox_auth_responses |
@@ -53,7 +53,4 @@
           item.value.config | default([]) +
           ['exit', 'exit']} }}
   loop_control:
-    label:
-      interface: "{{ item.key }}"
-      description:  "{{ item.value.description | default('<none>') }}"
-      config: "{{ item.value.config | default([]) }}"
+    label: "{interface: '{{ item.key }}', description: '{{ item.value.description | default('<none>') }}', config: '{{ item.value.config | default([]) }}'}"
